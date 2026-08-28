@@ -6,14 +6,14 @@ export interface Conductor {
   family: "ACSR" | "AAAC" | "AAC";
   material: string;
 
-  // Engineering data
+  // Physical properties
   diameter: number;          // mm
   aluminiumArea: number;     // mm²
   totalArea: number;         // mm²
   weightPerKm: number;       // kg/km
-  resistance20: number;      // ohm/km
-  ampacity: number;          // A
+  resistance20: number;      // Ω/km @ 20°C
 
+  // Construction
   aluminiumStrands: string;
   steelStrands?: string;
 
@@ -21,173 +21,178 @@ export interface Conductor {
 }
 
 export const conductors: Conductor[] = [
-  // ---------- ACSR ----------
-  {
-    id: "weasel",
-    name: "Weasel",
-    family: "ACSR",
-    material: "Aluminium + Steel",
-    diameter: 7.77,
-    aluminiumArea: 30,
-    totalArea: 31.3,
-    weightPerKm: 118,
-    resistance20: 0.93,
-    ampacity: 180,
-    aluminiumStrands: "6 × 2.59 mm",
-    steelStrands: "1 × 2.59 mm",
-    description: "Light distribution conductor"
-  },
+  // =========================
+  // ACSR CONDUCTORS
+  // =========================
+
   {
     id: "squirrel",
     name: "Squirrel",
     family: "ACSR",
-    material: "Aluminium + Steel",
-    diameter: 6.30,
+    material: "Aluminium + Galvanized Steel",
+    diameter: 6.33,
     aluminiumArea: 20,
-    totalArea: 21.2,
-    weightPerKm: 79,
-    resistance20: 1.38,
-    ampacity: 140,
-    aluminiumStrands: "6 × 2.11 mm",
-    steelStrands: "1 × 2.11 mm",
-    description: "Low-voltage distribution"
+    totalArea: 20.98,
+    weightPerKm: 85,
+    resistance20: 1.394,
+    aluminiumStrands: "6/2.11",
+    steelStrands: "1/2.11",
+    description: "Light distribution conductor"
   },
+
+  {
+    id: "weasel",
+    name: "Weasel",
+    family: "ACSR",
+    material: "Aluminium + Galvanized Steel",
+    diameter: 7.77,
+    aluminiumArea: 30,
+    totalArea: 31.61,
+    weightPerKm: 128,
+    resistance20: 0.929,
+    aluminiumStrands: "6/2.59",
+    steelStrands: "1/2.59",
+    description: "Distribution overhead conductor"
+  },
+
   {
     id: "rabbit",
     name: "Rabbit",
     family: "ACSR",
-    material: "Aluminium + Steel",
+    material: "Aluminium + Galvanized Steel",
     diameter: 10.05,
     aluminiumArea: 50,
-    totalArea: 52.9,
+    totalArea: 52.88,
     weightPerKm: 214,
-    resistance20: 0.56,
-    ampacity: 240,
-    aluminiumStrands: "6 × 3.35 mm",
-    steelStrands: "1 × 3.35 mm",
-    description: "11–33 kV distribution"
+    resistance20: 0.552,
+    aluminiumStrands: "6/3.35",
+    steelStrands: "1/3.35",
+    description: "11–33 kV distribution conductor"
   },
+
   {
     id: "raccoon",
     name: "Raccoon",
     family: "ACSR",
-    material: "Aluminium + Steel",
+    material: "Aluminium + Galvanized Steel",
     diameter: 12.27,
     aluminiumArea: 80,
-    totalArea: 84.1,
+    totalArea: 91.97,
     weightPerKm: 318,
-    resistance20: 0.35,
-    ampacity: 300,
-    aluminiumStrands: "6 × 4.09 mm",
-    steelStrands: "1 × 4.09 mm",
+    resistance20: 0.371,
+    aluminiumStrands: "6/4.09",
+    steelStrands: "1/4.09",
     description: "Medium distribution conductor"
   },
+
   {
     id: "dog",
     name: "Dog",
     family: "ACSR",
-    material: "Aluminium + Steel",
+    material: "Aluminium + Galvanized Steel",
     diameter: 14.15,
     aluminiumArea: 100,
     totalArea: 118.5,
     weightPerKm: 394,
     resistance20: 0.273,
-    ampacity: 360,
-    aluminiumStrands: "6 × 4.72 mm",
-    steelStrands: "1 × 4.72 mm",
-    description: "33–66 kV overhead line"
+    aluminiumStrands: "6/4.72",
+    steelStrands: "7/1.57",
+    description: "33–66 kV overhead conductor"
   },
+
   {
     id: "wolf",
     name: "Wolf",
     family: "ACSR",
-    material: "Aluminium + Steel",
+    material: "Aluminium + Galvanized Steel",
     diameter: 18.13,
     aluminiumArea: 150,
     totalArea: 194.9,
-    weightPerKm: 727,
+    weightPerKm: 726,
     resistance20: 0.182,
-    ampacity: 470,
-    aluminiumStrands: "30 × 2.59 mm",
-    steelStrands: "7 × 2.59 mm",
+    aluminiumStrands: "30/2.59",
+    steelStrands: "7/2.59",
     description: "Sub-transmission conductor"
   },
+
   {
     id: "panther",
     name: "Panther",
     family: "ACSR",
-    material: "Aluminium + Steel",
+    material: "Aluminium + Galvanized Steel",
     diameter: 21.00,
     aluminiumArea: 200,
     totalArea: 261.5,
     weightPerKm: 976,
     resistance20: 0.139,
-    ampacity: 560,
-    aluminiumStrands: "30 × 3.00 mm",
-    steelStrands: "7 × 3.00 mm",
+    aluminiumStrands: "30/3.00",
+    steelStrands: "7/3.00",
     description: "132 kV transmission conductor"
   },
+
   {
     id: "kundah",
     name: "Kundah",
     family: "ACSR",
-    material: "Aluminium + Steel",
+    material: "Aluminium + Galvanized Steel",
     diameter: 26.88,
     aluminiumArea: 300,
-    totalArea: 329,
+    totalArea: 329.0,
     weightPerKm: 1282,
     resistance20: 0.094,
-    ampacity: 700,
-    aluminiumStrands: "54 × 2.67 mm",
-    steelStrands: "7 × 2.67 mm",
+    aluminiumStrands: "54/2.67",
+    steelStrands: "7/2.67",
     description: "220 kV transmission conductor"
   },
+
   {
     id: "zebra",
     name: "Zebra",
     family: "ACSR",
-    material: "Aluminium + Steel",
+    material: "Aluminium + Galvanized Steel",
     diameter: 28.62,
     aluminiumArea: 400,
     totalArea: 484.5,
     weightPerKm: 1621,
-    resistance20: 0.068,
-    ampacity: 860,
-    aluminiumStrands: "54 × 3.18 mm",
-    steelStrands: "7 × 3.18 mm",
-    description: "220–400 kV transmission"
+    resistance20: 0.069,
+    aluminiumStrands: "54/3.18",
+    steelStrands: "7/3.18",
+    description: "220–400 kV transmission conductor"
   },
+
   {
     id: "moose",
     name: "Moose",
     family: "ACSR",
-    material: "Aluminium + Steel",
+    material: "Aluminium + Galvanized Steel",
     diameter: 31.77,
     aluminiumArea: 520,
-    totalArea: 597,
+    totalArea: 597.0,
     weightPerKm: 1998,
-    resistance20: 0.054,
-    ampacity: 980,
-    aluminiumStrands: "54 × 3.53 mm",
-    steelStrands: "7 × 3.53 mm",
-    description: "EHV transmission conductor"
+    resistance20: 0.056,
+    aluminiumStrands: "54/3.53",
+    steelStrands: "7/3.53",
+    description: "Extra High Voltage transmission conductor"
   },
 
-  // ---------- AAAC ----------
+  // =========================
+  // AAAC CONDUCTORS
+  // =========================
+
   {
-    id: "aaac120",
-    name: "AAAC 120",
+    id: "aaac100",
+    name: "AAAC 100",
     family: "AAAC",
     material: "All Aluminium Alloy",
-    diameter: 15.2,
-    aluminiumArea: 120,
-    totalArea: 120,
-    weightPerKm: 332,
-    resistance20: 0.225,
-    ampacity: 350,
-    aluminiumStrands: "19 strands",
-    description: "AAAC distribution conductor"
+    diameter: 13.4,
+    aluminiumArea: 100,
+    totalArea: 100,
+    weightPerKm: 274,
+    resistance20: 0.321,
+    aluminiumStrands: "19 Strands",
+    description: "AAAC alloy distribution conductor"
   },
+
   {
     id: "aaac150",
     name: "AAAC 150",
@@ -196,12 +201,12 @@ export const conductors: Conductor[] = [
     diameter: 16.9,
     aluminiumArea: 150,
     totalArea: 150,
-    weightPerKm: 415,
-    resistance20: 0.180,
-    ampacity: 410,
-    aluminiumStrands: "19 strands",
-    description: "AAAC medium conductor"
+    weightPerKm: 412,
+    resistance20: 0.214,
+    aluminiumStrands: "19 Strands",
+    description: "AAAC medium-capacity conductor"
   },
+
   {
     id: "aaac232",
     name: "AAAC 232",
@@ -210,14 +215,30 @@ export const conductors: Conductor[] = [
     diameter: 21.0,
     aluminiumArea: 232,
     totalArea: 232,
-    weightPerKm: 642,
-    resistance20: 0.116,
-    ampacity: 560,
-    aluminiumStrands: "37 strands",
+    weightPerKm: 636,
+    resistance20: 0.138,
+    aluminiumStrands: "37 Strands",
     description: "AAAC transmission conductor"
   },
 
-  // ---------- AAC ----------
+  {
+    id: "aaac300",
+    name: "AAAC 300",
+    family: "AAAC",
+    material: "All Aluminium Alloy",
+    diameter: 24.3,
+    aluminiumArea: 300,
+    totalArea: 300,
+    weightPerKm: 823,
+    resistance20: 0.106,
+    aluminiumStrands: "37 Strands",
+    description: "High-capacity AAAC conductor"
+  },
+
+  // =========================
+  // AAC CONDUCTORS
+  // =========================
+
   {
     id: "aac50",
     name: "AAC 50",
@@ -228,10 +249,10 @@ export const conductors: Conductor[] = [
     totalArea: 50,
     weightPerKm: 137,
     resistance20: 0.641,
-    ampacity: 220,
-    aluminiumStrands: "7 strands",
+    aluminiumStrands: "7 Strands",
     description: "AAC distribution conductor"
   },
+
   {
     id: "aac100",
     name: "AAC 100",
@@ -242,10 +263,10 @@ export const conductors: Conductor[] = [
     totalArea: 100,
     weightPerKm: 274,
     resistance20: 0.320,
-    ampacity: 340,
-    aluminiumStrands: "19 strands",
+    aluminiumStrands: "19 Strands",
     description: "AAC overhead conductor"
   },
+
   {
     id: "aac150",
     name: "AAC 150",
@@ -256,12 +277,26 @@ export const conductors: Conductor[] = [
     totalArea: 150,
     weightPerKm: 411,
     resistance20: 0.213,
-    ampacity: 430,
-    aluminiumStrands: "37 strands",
+    aluminiumStrands: "37 Strands",
     description: "High-capacity AAC conductor"
+  },
+
+  {
+    id: "aac200",
+    name: "AAC 200",
+    family: "AAC",
+    material: "EC Grade Aluminium",
+    diameter: 18.2,
+    aluminiumArea: 200,
+    totalArea: 200,
+    weightPerKm: 548,
+    resistance20: 0.160,
+    aluminiumStrands: "37 Strands",
+    description: "Transmission AAC conductor"
   }
 ];
 
-// Useful helper
-export const getConductorById = (id: string) =>
-  conductors.find(c => c.id === id);
+export const getConductorById = (id: string): Conductor | undefined =>
+  conductors.find((conductor) => conductor.id === id);
+
+export const families = ["ACSR", "AAAC", "AAC"] as const;
