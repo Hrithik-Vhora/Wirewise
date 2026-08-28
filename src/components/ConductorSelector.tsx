@@ -10,13 +10,10 @@ export default function ConductorSelector({
   selected,
   onSelect,
 }: Props) {
-  const [query, setQuery] = useState(selected.name);
+  const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setQuery(selected.name);
-  }, [selected]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -63,7 +60,7 @@ export default function ConductorSelector({
         </svg>
 
         <input
-          value={query}
+          value={open ? query : selected.name}
           onChange={(e) => {
             setQuery(e.target.value);
             setOpen(true);
