@@ -25,7 +25,7 @@ const TITLES: Record<ViewId, string> = {
 const INITIAL_INPUTS: WireProductionInputs = {
   diameterMm: 2.5,
   lengthM: 1000,
-  density: ALUMINIUM_DENSITY_G_PER_CM3,
+  weightPerKm: 1998,
   materialPricePerKg: 2.4,
   wastePercent: 7,
   sellPricePerKg: 3.6,
@@ -43,12 +43,12 @@ function App() {
 
   // Sync conductor data into calculator inputs
   useEffect(() => {
-    setInputs((prev) => ({
-      ...prev,
-      diameterMm: selectedConductor.diameter,
-    }))
-  }, [selectedConductor])
-
+  setInputs((prev) => ({
+    ...prev,
+    diameterMm: selectedConductor.diameter,
+    weightPerKm: selectedConductor.weightPerKm,
+  }))
+}, [selectedConductor])
   const snapshot = useMemo(() => computeProductionSnapshot(inputs), [inputs])
 
   function updateInput<K extends keyof WireProductionInputs>(
