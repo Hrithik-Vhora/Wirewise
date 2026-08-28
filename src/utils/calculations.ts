@@ -1,123 +1,137 @@
-import type { WireProductionInputs } from '../types'
+import { useEffect, useMemo, useRef, useState } from "react";
+import { conductors, type Conductor } from "../data/conductors";
 
-// Density of aluminium in g/cm³. Adjustable for alloy variants.
-export const ALUMINIUM_DENSITY_G_PER_CM3 = 2.70
-
-/**
- * Calculates the weight of a cylindrical aluminium wire.
- * @param diameterMm  Wire diameter in millimetres
- * @param lengthM     Wire length in metres
- * @param densityGCm3 Material density in g/cm³ (defaults to pure aluminium)
- * @returns weight in kilograms
- */
-export function calculateWireWeightKg(
-  diameterMm: number,
-  lengthM: number,
-  densityGCm3: number = ALUMINIUM_DENSITY_G_PER_CM3
-): number {
-  if (diameterMm <= 0 || lengthM <= 0) return 0
-  const radiusCm = diameterMm / 10 / 2
-  const lengthCm = lengthM * 100
-  const volumeCm3 = Math.PI * radiusCm * radiusCm * lengthCm
-  const weightG = volumeCm3 * densityGCm3
-  return weightG / 1000
+interface Props {
+  selected: Conductor;
+  onSelect: (conductor: Conductor) => void;
 }
 
-/** Cross-sectional area of a round wire in mm². */
-export function calculateCrossSectionAreaMm2(diameterMm: number): number {
-  if (diameterMm <= 0) return 0
-  const radiusMm = diameterMm / 2
-  return Math.PI * radiusMm * radiusMm
-}
+export default function ConductorSelector({
+  selected,
+  onSelect,
+}: Props) {
+  const [query, setQuery] = useState(selected.name);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-/** Material cost for a given weight and price per kilogram. */
-export function calculateMaterialCost(weightKg: number, pricePerKg: number): number {
-  if (weightKg <= 0 || pricePerKg <= 0) return 0
-  return weightKg * pricePerKg
-}
+  useEffect(() => {
+    setQuery(selected.name);
+  }, [selected]);
 
-/** Waste percentage between raw input weight and finished output weight. */
-export function calculateWastePercentage(inputWeightKg: number, outputWeightKg: number): number {
-  if (inputWeightKg <= 0) return 0
-  const waste = ((inputWeightKg - outputWeightKg) / inputWeightKg) * 100
-  return Math.max(0, waste)
-}
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
 
-/** Raw material needed to yield a target finished weight, given an expected waste rate. */
-export function calculateRequiredInputWeight(targetOutputWeightKg: number, wastePercent: number): number {
-  if (wastePercent >= 100) return Infinity
-  return targetOutputWeightKg / (1 - wastePercent / 100)
-}
+    window.addEventListener("mousedown", handleClick);
+    return () => window.removeEventListener("mousedown", handleClick);
+  }, []);
 
-export interface ProfitBreakdown {
-  materialCost: number
-  additionalCosts: number
-  totalCost: number
-  revenue: number
-  profit: number
-  marginPercent: number
-}
+  const filtered = useMemo(() => {
+    const search = query.trim().toLowerCase();
 
-/**
- * Computes revenue, total cost, profit, and margin for a production batch.
- * @param outputWeightKg  Finished (sellable) wire weight
- * @param sellPricePerKg  Sale price per kilogram of finished wire
- * @param materialCost    Cost of raw material consumed (already waste-adjusted upstream)
- * @param additionalCosts Labour, energy, overhead, etc.
- */
-export function calculateProfit(
-  outputWeightKg: number,
-  sellPricePerKg: number,
-  materialCost: number,
-  additionalCosts: number
-): ProfitBreakdown {
-  const revenue = Math.max(0, outputWeightKg) * Math.max(0, sellPricePerKg)
-  const totalCost = Math.max(0, materialCost) + Math.max(0, additionalCosts)
-  const profit = revenue - totalCost
-  const marginPercent = revenue > 0 ? (profit / revenue) * 100 : 0
-  return { materialCost, additionalCosts, totalCost, revenue, profit, marginPercent }
-}
+    if (!search) return conductors;
 
-export interface ProductionSnapshot {
-  outputWeightKg: number
-  inputWeightKg: number
-  wasteWeightKg: number
-  wastePercent: number
-  materialCost: number
-  profit: ProfitBreakdown
-}
+    return conductors.filter(
+      (conductor) =>
+        conductor.name.toLowerCase().includes(search) ||
+        conductor.family.toLowerCase().includes(search) ||
+        conductor.material.toLowerCase().includes(search)
+    );
+  }, [query]);
 
-/**
- * Single derivation pipeline for the whole app. Every screen (Home dashboard
- * and each calculator) reads its numbers from one snapshot instead of
- * recomputing them independently, so the four "current values" are always
- * consistent with each other.
- */
-export function computeProductionSnapshot(inputs: WireProductionInputs): ProductionSnapshot {
-  const outputWeightKg = calculateWireWeightKg(inputs.diameterMm, inputs.lengthM, inputs.density)
-  const rawInputWeightKg = calculateRequiredInputWeight(outputWeightKg, inputs.wastePercent)
-  const inputWeightKg = Number.isFinite(rawInputWeightKg) ? rawInputWeightKg : 0
-  const wasteWeightKg = Math.max(0, inputWeightKg - outputWeightKg)
-  const materialCost = calculateMaterialCost(inputWeightKg, inputs.materialPricePerKg)
-  const profit = calculateProfit(outputWeightKg, inputs.sellPricePerKg, materialCost, inputs.additionalCosts)
+  return (
+    <div ref={containerRef} className="relative w-full max-w-2xl">
+      {/* Search Bar */}
+      <div
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#1C1C1E]/80 px-5 py-4 backdrop-blur-xl transition-all duration-300 hover:border-orange-400/30"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          className="opacity-60"
+        >
+          <path
+            d="M21 21L16.65 16.65M11 18C7.13 18 4 14.87 4 11S7.13 4 11 4s7 3.13 7 7-3.13 7-7 7Z"
+            stroke="white"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </svg>
 
-  return {
-    outputWeightKg,
-    inputWeightKg,
-    wasteWeightKg,
-    wastePercent: inputs.wastePercent,
-    materialCost,
-    profit,
-  }
-}
+        <input
+          value={query}
+          onFocus={() => setOpen(true)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setOpen(true);
+          }}
+          placeholder="Search conductor..."
+          className="w-full bg-transparent text-white outline-none placeholder:text-white/35"
+        />
+      </div>
 
-/** Formats a number as a fixed-precision string, safe against NaN/Infinity. */
-export function formatNumber(value: number, digits = 2): string {
-  if (!Number.isFinite(value)) return '—'
-  return value.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })
-}
+      {/* Dropdown */}
+      <div
+        className={`absolute left-0 right-0 top-[74px] z-50 overflow-hidden rounded-2xl border border-white/10 bg-[#171717]/95 shadow-2xl backdrop-blur-2xl transition-all duration-300 ${
+          open
+            ? "max-h-[420px] opacity-100"
+            : "pointer-events-none max-h-0 opacity-0"
+        }`}
+      >
+        <div className="max-h-[420px] overflow-y-auto">
+          {filtered.map((conductor) => (
+            <button
+              key={conductor.id}
+              onClick={() => {
+                onSelect(conductor);
+                setQuery(conductor.name);
+                setOpen(false);
+              }}
+              className={`flex w-full items-center justify-between px-5 py-4 text-left transition-all duration-200 ${
+                selected.id === conductor.id
+                  ? "bg-orange-500/10"
+                  : "hover:bg-white/5"
+              }`}
+            >
+              <div>
+                <p className="font-semibold text-white">{conductor.name}</p>
 
-export function formatCurrency(value: number, currency = 'USD'): string {
-  if (!Number.isFinite(value)) return '—'
-  return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value)
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] tracking-wide text-white/70">
+                    {conductor.family}
+                  </span>
+
+                  <span className="text-xs text-white/45">
+                    {conductor.material}
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <p className="font-mono text-sm text-white">
+                  Ø {conductor.diameter.toFixed(2)} mm
+                </p>
+
+                <p className="text-xs text-white/45">
+                  {conductor.weightPerKm} kg/km
+                </p>
+              </div>
+            </button>
+          ))}
+
+          {filtered.length === 0 && (
+            <div className="px-5 py-8 text-center text-sm text-white/40">
+              No conductors found
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
