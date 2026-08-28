@@ -96,14 +96,13 @@ function App() {
 
         {view === 'weight' && (
           <WeightCalculator
-            diameterMm={inputs.diameterMm}
-            lengthM={inputs.lengthM}
-            density={inputs.density}
-            onDiameterChange={(v) => updateInput('diameterMm', v)}
-            onLengthChange={(v) => updateInput('lengthM', v)}
-            onDensityChange={(v) => updateInput('density', v)}
-            outputWeightKg={snapshot.outputWeightKg}
-          />
+  diameterMm={inputs.diameterMm}
+  lengthM={inputs.lengthM}
+  weightPerKm={inputs.weightPerKm}
+  onDiameterChange={(v) => updateInput('diameterMm', v)}
+  onLengthChange={(v) => updateInput('lengthM', v)}
+  outputWeightKg={snapshot.outputWeightKg}
+/>
         )}
 
         {view === 'material' && (
