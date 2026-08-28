@@ -76,23 +76,14 @@ function App() {
           </header>
         )}
 
-        {view === 'home' && (
-          <>
-            <div style={{ marginBottom: '1.75rem' }}>
-              <ConductorSelector
-                selected={selectedConductor}
-                onSelect={setSelectedConductor}
-              />
-            </div>
-
-            <Home
-              snapshot={snapshot}
-              onNavigate={setView}
-              selectedConductor={selectedConductor}
-              onConductorChange={setSelectedConductor}
-            />
-          </>
-        )}
+       {view === 'home' && (
+  <Home
+    snapshot={snapshot}
+    onNavigate={setView}
+    selectedConductor={selectedConductor}
+    onConductorChange={setSelectedConductor}
+  />
+  )}
 
         {view === 'weight' && (
           <WeightCalculator
