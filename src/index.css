@@ -1,0 +1,55 @@
+:root {
+  --bg: #14171a;
+  --panel: #1d2124;
+  --panel-2: #262b2f;
+  --border: #33393e;
+  --aluminium: #cdd3d8;
+  --aluminium-dim: #7b838b;
+  --ember: #e8863a;
+  --ember-dim: #b5652a;
+  --ember-glow: rgba(232, 134, 58, 0.18);
+  --success: #6fa98a;
+  --danger: #c15347;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  background-image: radial-gradient(circle at 15% 0%, rgba(232, 134, 58, 0.06), transparent 45%);
+  color: var(--aluminium);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
