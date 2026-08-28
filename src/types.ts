@@ -11,13 +11,16 @@ export interface CalculatorMeta {
 }
 
 /**
- * The single shared input state for the whole app. Every calculator reads
- * and edits a slice of this instead of keeping its own local copy.
+ * Shared production inputs for the entire application.
+ * Every calculator edits this single source of truth.
  */
 export interface WireProductionInputs {
   diameterMm: number
   lengthM: number
-  density: number
+
+  /** Verified conductor specification (kg/km) */
+  weightPerKm: number
+
   materialPricePerKg: number
   wastePercent: number
   sellPricePerKg: number
