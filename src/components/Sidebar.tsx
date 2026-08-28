@@ -1,4 +1,4 @@
-import type { CalculatorId, CalculatorMeta } from '../types'
+import type { ViewId, CalculatorMeta } from '../types'
 
 const NAV_ITEMS: CalculatorMeta[] = [
   { id: 'weight', label: 'Wire Weight', shortLabel: 'Weight', unit: 'kg' },
@@ -8,13 +8,13 @@ const NAV_ITEMS: CalculatorMeta[] = [
 ]
 
 interface SidebarProps {
-  active: CalculatorId
-  onSelect: (id: CalculatorId) => void
+  active: ViewId
+  onSelect: (id: ViewId) => void
 }
 
 export function Sidebar({ active, onSelect }: SidebarProps) {
   return (
-    <nav className="sidebar" aria-label="Calculators">
+    <nav className="sidebar" aria-label="Primary">
       <div className="sidebar__mark">
         <span className="sidebar__mark-glyph">⌁</span>
         <div>
@@ -22,6 +22,16 @@ export function Sidebar({ active, onSelect }: SidebarProps) {
           <div className="sidebar__mark-sub">Production Console</div>
         </div>
       </div>
+
+      <button
+        className={active === 'home' ? 'sidebar__home sidebar__home--active' : 'sidebar__home'}
+        onClick={() => onSelect('home')}
+        aria-current={active === 'home'}
+      >
+        <span className="sidebar__home-glyph">⌂</span>
+        Overview
+      </button>
+
       <ul className="sidebar__list">
         {NAV_ITEMS.map((item, i) => (
           <li key={item.id}>
