@@ -1,11 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
+
 import { Sidebar } from './components/Sidebar'
 import { Home } from './components/Home'
 import { WeightCalculator } from './components/WeightCalculator'
 import { MaterialCostCalculator } from './components/MaterialCostCalculator'
 import { WasteCalculator } from './components/WasteCalculator'
 import { ProfitCalculator } from './components/ProfitCalculator'
+
+import ConductorSelector from './components/ConductorSelector'
+import { conductors, Conductor } from './data/conductors'
+
 import type { ViewId, WireProductionInputs } from './types'
 import { ALUMINIUM_DENSITY_G_PER_CM3, computeProductionSnapshot } from './utils/calculations'
 
@@ -31,29 +36,63 @@ function App() {
   const [view, setView] = useState<ViewId>('home')
   const [inputs, setInputs] = useState<WireProductionInputs>(INITIAL_INPUTS)
 
+  // Shared conductor state
+  const [selectedConductor, setSelectedConductor] = useState<Conductor>(
+    conductors.find((c) => c.id === 'moose') ?? conductors[0]
+  )
+
+  // Sync conductor data into calculator inputs
+  useEffect(() => {
+    setInputs((prev) => ({
+      ...prev,
+      diameterMm: selectedConductor.diameter,
+    }))
+  }, [selectedConductor])
+
   const snapshot = useMemo(() => computeProductionSnapshot(inputs), [inputs])
 
-  function updateInput<K extends keyof WireProductionInputs>(key: K, value: WireProductionInputs[K]) {
+  function updateInput<K extends keyof WireProductionInputs>(
+    key: K,
+    value: WireProductionInputs[K]
+  ) {
     setInputs((prev) => ({ ...prev, [key]: value }))
   }
 
   return (
     <div className="app">
       <Sidebar active={view} onSelect={setView} />
+
       <main className="app__main">
         {view !== 'home' && (
           <header className="app__header">
             <div>
-              <p className="app__eyebrow">Aluminium Wire Production</p>
+              <p className="app__eyebrow">Conductor Manufacturing Intelligence</p>
               <h1 className="app__title">{TITLES[view]}</h1>
             </div>
+
             <button className="app__back" onClick={() => setView('home')}>
               ← Overview
             </button>
           </header>
         )}
 
-        {view === 'home' && <Home snapshot={snapshot} onNavigate={setView} />}
+        {view === 'home' && (
+          <>
+            <div style={{ marginBottom: '1.75rem' }}>
+              <ConductorSelector
+                selected={selectedConductor}
+                onSelect={setSelectedConductor}
+              />
+            </div>
+
+            <Home
+              snapshot={snapshot}
+              onNavigate={setView}
+              selectedConductor={selectedConductor}
+              onConductorChange={setSelectedConductor}
+            />
+          </>
+        )}
 
         {view === 'weight' && (
           <WeightCalculator
