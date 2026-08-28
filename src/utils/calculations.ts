@@ -1,3 +1,5 @@
+import type { WireProductionInputs } from '../types'
+
 // Density of aluminium in g/cm³. Adjustable for alloy variants.
 export const ALUMINIUM_DENSITY_G_PER_CM3 = 2.70
 
@@ -19,6 +21,13 @@ export function calculateWireWeightKg(
   const volumeCm3 = Math.PI * radiusCm * radiusCm * lengthCm
   const weightG = volumeCm3 * densityGCm3
   return weightG / 1000
+}
+
+/** Cross-sectional area of a round wire in mm². */
+export function calculateCrossSectionAreaMm2(diameterMm: number): number {
+  if (diameterMm <= 0) return 0
+  const radiusMm = diameterMm / 2
+  return Math.PI * radiusMm * radiusMm
 }
 
 /** Material cost for a given weight and price per kilogram. */
@@ -67,6 +76,39 @@ export function calculateProfit(
   const profit = revenue - totalCost
   const marginPercent = revenue > 0 ? (profit / revenue) * 100 : 0
   return { materialCost, additionalCosts, totalCost, revenue, profit, marginPercent }
+}
+
+export interface ProductionSnapshot {
+  outputWeightKg: number
+  inputWeightKg: number
+  wasteWeightKg: number
+  wastePercent: number
+  materialCost: number
+  profit: ProfitBreakdown
+}
+
+/**
+ * Single derivation pipeline for the whole app. Every screen (Home dashboard
+ * and each calculator) reads its numbers from one snapshot instead of
+ * recomputing them independently, so the four "current values" are always
+ * consistent with each other.
+ */
+export function computeProductionSnapshot(inputs: WireProductionInputs): ProductionSnapshot {
+  const outputWeightKg = calculateWireWeightKg(inputs.diameterMm, inputs.lengthM, inputs.density)
+  const rawInputWeightKg = calculateRequiredInputWeight(outputWeightKg, inputs.wastePercent)
+  const inputWeightKg = Number.isFinite(rawInputWeightKg) ? rawInputWeightKg : 0
+  const wasteWeightKg = Math.max(0, inputWeightKg - outputWeightKg)
+  const materialCost = calculateMaterialCost(inputWeightKg, inputs.materialPricePerKg)
+  const profit = calculateProfit(outputWeightKg, inputs.sellPricePerKg, materialCost, inputs.additionalCosts)
+
+  return {
+    outputWeightKg,
+    inputWeightKg,
+    wasteWeightKg,
+    wastePercent: inputs.wastePercent,
+    materialCost,
+    profit,
+  }
 }
 
 /** Formats a number as a fixed-precision string, safe against NaN/Infinity. */
