@@ -1,137 +1,164 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { conductors, type Conductor } from "../data/conductors";
+import type { WireProductionInputs } from '../types'
 
-interface Props {
-  selected: Conductor;
-  onSelect: (conductor: Conductor) => void;
+/**
+ * Calculates conductor weight from the verified unit weight (kg/km).
+ * Formula:
+ * Weight = Length × (kg/km ÷ 1000)
+ */
+export function calculateWireWeightKg(
+  weightPerKm: number,
+  lengthM: number
+): number {
+  if (weightPerKm <= 0 || lengthM <= 0) return 0
+  return (weightPerKm * lengthM) / 1000
 }
 
-export default function ConductorSelector({
-  selected,
-  onSelect,
-}: Props) {
-  const [query, setQuery] = useState(selected.name);
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+/** Cross-sectional area of a round conductor in mm². */
+export function calculateCrossSectionAreaMm2(diameterMm: number): number {
+  if (diameterMm <= 0) return 0
+  const radius = diameterMm / 2
+  return Math.PI * radius * radius
+}
 
-  useEffect(() => {
-    setQuery(selected.name);
-  }, [selected]);
+/** Material cost for a given weight and price/kg. */
+export function calculateMaterialCost(
+  weightKg: number,
+  pricePerKg: number
+): number {
+  return Math.max(0, weightKg) * Math.max(0, pricePerKg)
+}
 
-  useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
+/** Waste percentage between raw and finished conductor weight. */
+export function calculateWastePercentage(
+  inputWeightKg: number,
+  outputWeightKg: number
+): number {
+  if (inputWeightKg <= 0) return 0
 
-    window.addEventListener("mousedown", handleClick);
-    return () => window.removeEventListener("mousedown", handleClick);
-  }, []);
+  const waste =
+    ((inputWeightKg - outputWeightKg) / inputWeightKg) * 100
 
-  const filtered = useMemo(() => {
-    const search = query.trim().toLowerCase();
+  return Math.max(0, waste)
+}
 
-    if (!search) return conductors;
+/** Required raw material to produce a finished output weight. */
+export function calculateRequiredInputWeight(
+  targetOutputWeightKg: number,
+  wastePercent: number
+): number {
+  if (wastePercent >= 100) return Infinity
 
-    return conductors.filter(
-      (conductor) =>
-        conductor.name.toLowerCase().includes(search) ||
-        conductor.family.toLowerCase().includes(search) ||
-        conductor.material.toLowerCase().includes(search)
-    );
-  }, [query]);
+  return targetOutputWeightKg / (1 - wastePercent / 100)
+}
 
-  return (
-    <div ref={containerRef} className="relative w-full max-w-2xl">
-      {/* Search Bar */}
-      <div
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#1C1C1E]/80 px-5 py-4 backdrop-blur-xl transition-all duration-300 hover:border-orange-400/30"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          className="opacity-60"
-        >
-          <path
-            d="M21 21L16.65 16.65M11 18C7.13 18 4 14.87 4 11S7.13 4 11 4s7 3.13 7 7-3.13 7-7 7Z"
-            stroke="white"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-        </svg>
+export interface ProfitBreakdown {
+  materialCost: number
+  additionalCosts: number
+  totalCost: number
+  revenue: number
+  profit: number
+  marginPercent: number
+}
 
-        <input
-          value={query}
-          onFocus={() => setOpen(true)}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-          }}
-          placeholder="Search conductor..."
-          className="w-full bg-transparent text-white outline-none placeholder:text-white/35"
-        />
-      </div>
+export function calculateProfit(
+  outputWeightKg: number,
+  sellPricePerKg: number,
+  materialCost: number,
+  additionalCosts: number
+): ProfitBreakdown {
+  const revenue =
+    Math.max(0, outputWeightKg) * Math.max(0, sellPricePerKg)
 
-      {/* Dropdown */}
-      <div
-        className={`absolute left-0 right-0 top-[74px] z-50 overflow-hidden rounded-2xl border border-white/10 bg-[#171717]/95 shadow-2xl backdrop-blur-2xl transition-all duration-300 ${
-          open
-            ? "max-h-[420px] opacity-100"
-            : "pointer-events-none max-h-0 opacity-0"
-        }`}
-      >
-        <div className="max-h-[420px] overflow-y-auto">
-          {filtered.map((conductor) => (
-            <button
-              key={conductor.id}
-              onClick={() => {
-                onSelect(conductor);
-                setQuery(conductor.name);
-                setOpen(false);
-              }}
-              className={`flex w-full items-center justify-between px-5 py-4 text-left transition-all duration-200 ${
-                selected.id === conductor.id
-                  ? "bg-orange-500/10"
-                  : "hover:bg-white/5"
-              }`}
-            >
-              <div>
-                <p className="font-semibold text-white">{conductor.name}</p>
+  const totalCost =
+    Math.max(0, materialCost) + Math.max(0, additionalCosts)
 
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] tracking-wide text-white/70">
-                    {conductor.family}
-                  </span>
+  const profit = revenue - totalCost
 
-                  <span className="text-xs text-white/45">
-                    {conductor.material}
-                  </span>
-                </div>
-              </div>
+  const marginPercent =
+    revenue > 0 ? (profit / revenue) * 100 : 0
 
-              <div className="text-right">
-                <p className="font-mono text-sm text-white">
-                  Ø {conductor.diameter.toFixed(2)} mm
-                </p>
+  return {
+    materialCost,
+    additionalCosts,
+    totalCost,
+    revenue,
+    profit,
+    marginPercent,
+  }
+}
 
-                <p className="text-xs text-white/45">
-                  {conductor.weightPerKm} kg/km
-                </p>
-              </div>
-            </button>
-          ))}
+export interface ProductionSnapshot {
+  outputWeightKg: number
+  inputWeightKg: number
+  wasteWeightKg: number
+  wastePercent: number
+  materialCost: number
+  profit: ProfitBreakdown
+}
 
-          {filtered.length === 0 && (
-            <div className="px-5 py-8 text-center text-sm text-white/40">
-              No conductors found
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+/**
+ * Master derivation pipeline.
+ * Every dashboard card and calculator reads from this snapshot.
+ */
+export function computeProductionSnapshot(
+  inputs: WireProductionInputs
+): ProductionSnapshot {
+  const outputWeightKg = calculateWireWeightKg(
+    inputs.weightPerKm,
+    inputs.lengthM
+  )
+
+  const rawInputWeight = calculateRequiredInputWeight(
+    outputWeightKg,
+    inputs.wastePercent
+  )
+
+  const inputWeightKg = Number.isFinite(rawInputWeight)
+    ? rawInputWeight
+    : 0
+
+  const wasteWeightKg = Math.max(
+    0,
+    inputWeightKg - outputWeightKg
+  )
+
+  const materialCost = calculateMaterialCost(
+    inputWeightKg,
+    inputs.materialPricePerKg
+  )
+
+  const profit = calculateProfit(
+    outputWeightKg,
+    inputs.sellPricePerKg,
+    materialCost,
+    inputs.additionalCosts
+  )
+
+  return {
+    outputWeightKg,
+    inputWeightKg,
+    wasteWeightKg,
+    wastePercent: inputs.wastePercent,
+    materialCost,
+    profit,
+  }
+}
+
+export function formatNumber(value: number, digits = 2): string {
+  if (!Number.isFinite(value)) return '—'
+
+  return value.toLocaleString('en-IN', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  })
+}
+
+export function formatCurrency(value: number): string {
+  if (!Number.isFinite(value)) return '—'
+
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(value)
 }
