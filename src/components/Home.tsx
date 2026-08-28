@@ -5,10 +5,15 @@ import { IconWeight, IconRevenue, IconProfit, IconWaste } from './icons'
 import { formatCurrency, formatNumber } from '../utils/calculations'
 import type { ProductionSnapshot } from '../utils/calculations'
 import type { CalculatorId } from '../types'
+import ConductorSelector from './ConductorSelector'
+import type { Conductor } from '../data/conductors'
 
 interface HomeProps {
   snapshot: ProductionSnapshot
   onNavigate: (id: CalculatorId) => void
+
+  selectedConductor: Conductor
+  onConductorChange: (conductor: Conductor) => void
 }
 
 interface TileConfig {
@@ -45,7 +50,12 @@ const TILES: TileConfig[] = [
   },
 ]
 
-export function Home({ snapshot, onNavigate }: HomeProps) {
+export function Home({
+  snapshot,
+  onNavigate,
+  selectedConductor,
+  onConductorChange,
+}: HomeProps) {
   return (
     <div className="home">
       <header className="home__hero">
@@ -54,6 +64,56 @@ export function Home({ snapshot, onNavigate }: HomeProps) {
         <p className="home__subtitle">
           Live figures from your current wire specification, material pricing, and waste settings.
         </p>
+        <div className="home__selector">
+  <ConductorSelector
+    selected={selectedConductor}
+    onSelect={onConductorChange}
+  />
+
+  <div className="conductor-spec-card">
+    <div className="conductor-spec-card__header">
+      <div>
+        <p className="conductor-spec-card__eyebrow">
+          {selectedConductor.family}
+        </p>
+        <h3>{selectedConductor.name}</h3>
+        <p>{selectedConductor.description}</p>
+      </div>
+    </div>
+
+    <div className="conductor-spec-grid">
+      <div className="spec-item">
+        <span>Diameter</span>
+        <strong>{selectedConductor.diameter.toFixed(2)} mm</strong>
+      </div>
+
+      <div className="spec-item">
+        <span>Area</span>
+        <strong>{selectedConductor.totalArea.toFixed(2)} mm²</strong>
+      </div>
+
+      <div className="spec-item">
+        <span>Weight</span>
+        <strong>{selectedConductor.weightPerKm} kg/km</strong>
+      </div>
+
+      <div className="spec-item">
+        <span>Resistance</span>
+        <strong>{selectedConductor.resistance20.toFixed(3)} Ω/km</strong>
+      </div>
+
+      <div className="spec-item">
+        <span>Al Strands</span>
+        <strong>{selectedConductor.aluminiumStrands}</strong>
+      </div>
+
+      <div className="spec-item">
+        <span>Steel</span>
+        <strong>{selectedConductor.steelStrands ?? '—'}</strong>
+      </div>
+    </div>
+  </div>
+</div>
       </header>
 
       <div className="kpi-grid">
