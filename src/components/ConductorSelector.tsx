@@ -27,17 +27,25 @@ export default function ConductorSelector({
   }, []);
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return conductors;
+  if (!query.trim()) return conductors.slice(0, 8);
 
-    const q = query.toLowerCase();
+  const q = query.toLowerCase();
 
-    return conductors.filter(
+  const order = {
+    ACSR: 0,
+    AAAC: 1,
+    AAC: 2,
+  };
+
+  return conductors
+    .filter(
       (c) =>
         c.name.toLowerCase().includes(q) ||
         c.family.toLowerCase().includes(q) ||
         c.material.toLowerCase().includes(q)
-    );
-  }, [query]);
+    )
+    .sort((a, b) => order[a.family] - order[b.family]);
+}, [query]);
 
   return (
     <div ref={containerRef} className="relative w-full max-w-2xl">
@@ -53,13 +61,13 @@ export default function ConductorSelector({
         </svg>
 
         <input
-          value={open ? query : ""}
+          value={query}
           onFocus={() => setOpen(true)}
           onChange={(e) => {
             setQuery(e.target.value);
             setOpen(true);
           }}
-          placeholder={selected.name}
+          placeholder="Search conductor…"
           className="w-full bg-transparent text-white outline-none placeholder:text-white/55"
         />
       </div>
@@ -75,7 +83,11 @@ export default function ConductorSelector({
                 setOpen(false);
                 setQuery("");
               }}
-              className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-white/5"
+              className={`flex w-full items-center justify-between px-5 py-4 text-left transition-all duration-200 ${
+  selected.id === conductor.id
+    ? "bg-orange-500/10 border-l-2 border-orange-400"
+    : "hover:bg-white/5"
+}`}
             >
               <div>
                 <p className="font-semibold text-white">{conductor.name}</p>
